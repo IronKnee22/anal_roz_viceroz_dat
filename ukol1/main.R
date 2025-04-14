@@ -1,10 +1,8 @@
-# Načtení knihoven
 library(readr)
 library(ggplot2)
 library(dplyr)
 library(corrplot)
 
-# Načtení dat
 ukol_A_vino <- read_csv("D:/Skola/semester8/anal_roz_viceroz_dat/ukol1/ukol_A_vino.csv")
 
 # Dimenze dat
@@ -13,7 +11,7 @@ dim(ukol_A_vino)
 # Kontrola chybějících hodnot
 colSums(is.na(ukol_A_vino))
 
-# Ukázka odlehlých hodnot – vybrané proměnné
+# Boxplot - odlehlých hodnot
 boxplot(
   ukol_A_vino$`free sulfur dioxide`,
   main = "Boxplot: Free Sulfur Dioxide",
@@ -75,13 +73,21 @@ boxplot(
   ylab = "0 = suché, 1 = sladké"
 )
 
-# Transformace proměnných s pravostranným rozdělením
+# Transformace proměnných
 ukol_A_vino$log_chlorides <- log(ukol_A_vino$chlorides + 1)
 ukol_A_vino$log_volatile_acidity <- log(ukol_A_vino$`volatile acidity` + 1)
 ukol_A_vino$log_citric_acid <- log(ukol_A_vino$`citric acid` + 1)
 
-# Histogram pro jednu z transformovaných proměnných
-hist(ukol_A_vino$log_chlorides, main = "Histogram log(chlorides)", col = "lightblue")
+# Histogram
+ggplot(ukol_A_vino, aes(x = log_chlorides)) +
+  geom_histogram(fill = "lightblue", color = "black", bins = 30) +
+  theme_minimal() +
+  labs(
+    title = "Histogram log(chlorides)",
+    x = "log(chlorides)",
+    y = "Počet vzorků"
+  )
+
 
 # Rozložení cílové proměnné
 ggplot(ukol_A_vino, aes(x = quality)) +
@@ -91,7 +97,7 @@ ggplot(ukol_A_vino, aes(x = quality)) +
 
 
 
-# Korelační matice – odstraníme netransformované verze vybraných proměnných
+# Korelační matice
 numeric_data <- ukol_A_vino %>%
   select(-chlorides, -`volatile acidity`, -`citric acid`, -sweet) %>%
   select(where(is.numeric))
@@ -121,8 +127,6 @@ ggplot(ukol_A_vino, aes(x = alcohol, y = density)) +
        x = "Alkohol (% obj.)", y = "Hustota (g/cm³)")
 
 
-## Druhá část
-# Lineární model – všechny proměnné kromě původních (transformované použity místo nich)
 model <- lm(quality ~ 
               `fixed acidity` +
               log_volatile_acidity +
